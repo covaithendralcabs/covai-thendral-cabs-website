@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Covai Thendral Cabs | Driver Duty Link V5</title>
+<style>
+:root{--gold:#c9a44c;--ink:#111;--muted:#6b7280;--line:#e5e7eb;--bg:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#171717;font-family:Arial,sans-serif}
+header{background:#111;color:#fff;text-align:center;padding:19px 14px;border-bottom:4px solid var(--gold)}
+.brand{font-weight:800;letter-spacing:1.3px;font-size:18px}.tag{font-size:10px;color:#d8c18a;margin-top:6px;letter-spacing:2px}
+.wrap{max-width:560px;margin:15px auto;padding:0 12px 30px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 3px 12px #00000008}
+h2{font-size:17px;margin:0 0 13px}.muted{color:var(--muted);font-size:12px}.small{font-size:11px;color:var(--muted);line-height:1.5}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0}.row strong{text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+label{display:block;font-size:12px;font-weight:700;color:#555;margin:7px 0 4px}
+input,select{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:10px;margin:4px 0 10px;font-size:15px;background:#fff;color:#171717}
+button{width:100%;padding:13px;border:0;border-radius:10px;background:#111;color:#fff;font-weight:700;font-size:14px;margin-top:7px}
+button.gold{background:var(--gold);color:#111}button.light{background:#f2f2f2;color:#222;border:1px solid #ddd}button:disabled{opacity:.45}
+.pill{display:inline-block;background:#fff2cf;color:#76570d;border-radius:20px;padding:7px 10px;font-size:10px;font-weight:bold}
+.notice{background:#faf6e9;border:1px solid #eadcb5;border-radius:10px;padding:11px;font-size:12px;line-height:1.5;margin:10px 0}
+.step{font-size:13px;margin:9px 0}.step b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#eee;margin-right:8px}.done b{background:#e2f3e7;color:#176b35}
+.hidden{display:none!important}.total{font-size:24px;font-weight:800}.sectionline{border-top:1px solid #eee;margin-top:12px;padding-top:12px}
+.qrbox{border:1px dashed #b9a36c;border-radius:12px;padding:18px;text-align:center;background:#fffdf7;margin:10px 0}
+.qrplaceholder{width:142px;height:142px;border:1px solid #ddd;background:repeating-conic-gradient(#eee 0% 25%,#fff 0% 50%) 50%/16px 16px;margin:0 auto 9px;display:grid;place-items:center;color:#777;font-size:12px}
+.foot{text-align:center;color:#777;font-size:11px;padding:10px}
+@media(min-width:600px){.wrap{padding-bottom:40px}}
+</style>
+</head>
+<body>
+<header><div class="brand">COVAI THENDRAL CABS</div><div class="tag">SAFE • RELIABLE • AFFORDABLE</div></header>
+<main class="wrap">
+<section class="card">
+ <div class="row"><div><div class="muted">DRIVER DUTY LINK · V5 TARIFF DEMO</div><strong>Booking CT-2026-0148</strong></div><span class="pill" id="status">WAITING FOR PICKUP</span></div>
+ <div class="grid" style="margin-top:13px">
+  <div><div class="muted">Driver</div><strong>Demo Driver</strong></div><div><div class="muted">Vehicle</div><strong id="vehicleSummary">Sedan · TN 37 AB 1234</strong></div>
+  <div><div class="muted">Pickup</div><strong>Gandhipuram, Coimbatore</strong></div><div><div class="muted">Trip Type</div><strong id="typeSummary">Local</strong></div>
+ </div>
+</section>
+<section class="card"><h2>Duty Progress</h2>
+ <div class="step" id="s1"><b>1</b> Reach pickup & record arrival</div><div class="step" id="s2"><b>2</b> Verify customer OTP</div>
+ <div class="step" id="s3"><b>3</b> Start trip & record ODO</div><div class="step" id="s4"><b>4</b> Finish trip & submit customer bill</div>
+ <div class="step" id="s5"><b>5</b> Pay office commission by QR</div><div class="step" id="s6"><b>6</b> Admin verifies payment & closes duty</div>
+</section>
+<section class="card"><h2>1. Pickup Navigation</h2><div class="muted">Demo pickup: Gandhipuram Bus Stand, Coimbatore</div>
+ <button class="light" onclick="alert('Demo only. Live system will open the exact assigned Google Maps pickup pin.')">Open Google Maps</button>
+ <button class="gold" onclick="reached()">I Have Reached Pickup</button><p class="small" id="reachmsg">Pickup arrival timestamp will be recorded in the live system.</p>
+</section>
+<section class="card hidden" id="otpbox"><h2>2. Customer OTP Verification</h2>
+ <div class="notice">Ask the customer for the OTP received on their phone. OTP is never displayed to the driver. Drop location unlocks only after successful verification.</div>
+ <label>Enter customer OTP</label><input id="otp" inputmode="numeric" maxlength="4" placeholder="4-digit OTP">
+ <button onclick="verifyOtp()">Verify OTP</button><p class="small" id="otpmsg">Demo OTP: 2468</p>
+</section>
+<section class="card hidden" id="startbox"><h2>3. Trip Start</h2><div class="notice">Drop location unlocked: Race Course, Coimbatore (demo).</div>
+ <div class="notice"><b>Assigned Booking Details</b><br>Trip Type and Vehicle are locked from the customer booking. Driver cannot change them. Demo default: Local · Sedan. Test links may pass trip and vehicle parameters; live values will come from the booking backend.</div><label>Assigned Trip Type</label><input id="tripTypeDisplay" disabled><label>Assigned Vehicle</label><input id="vehicleDisplay" disabled>
+ <div id="tripFields">
+  <div class="grid"><div><label>Booked Hours (Hourly Rental)</label><input id="hours" type="number" min="1" max="10" value="4" disabled></div><div><label>Rental Free KM</label><input id="freeKm" value="Auto calculated" disabled></div></div><div id="outerWrap"><label>Local Outer Distance (KM beyond 25 KM city boundary)</label><input id="outerKm" type="number" min="0" value="0" disabled></div>
+ </div>
+ <label>ODO Start (KM)</label><input id="odoStart" type="number" placeholder="Example: 45210">
+ <button class="gold" onclick="startTrip()">Start Trip</button><p class="small" id="startmsg"></p>
+</section>
+<section class="card hidden" id="endbox"><h2>4. Trip End & Charges</h2>
+ <label>ODO End (KM)</label><input id="odoEnd" type="number" placeholder="Example: 45245">
+ <div class="grid"><div><label>Personal-stop Waiting (Minutes)</label><input id="waitingMinutes" type="number" min="0" value="0"></div><div><label>Toll (₹)</label><input id="toll" type="number" min="0" value="0"></div>
+ <div><label>Permit (₹)</label><input id="permit" type="number" min="0" value="0"></div><div><label>Parking (₹)</label><input id="parking" type="number" min="0" value="0"></div></div>
+ <div id="hillWrap"><label>Hill Driving? (Outstation only)</label><select id="hill"><option value="no">No</option><option value="yes">Yes – add ₹400</option></select></div>
+ <div class="grid"><div><label>Actual Trip Duration</label><input id="actualDurationDisplay" value="Will calculate automatically" disabled><div class="small">Recorded from Start Trip to Calculate & Submit Trip.</div></div><div><label>Outstation Driver Bata</label><input id="bataDisplay" value="Auto calculated" disabled></div></div>
+ <label>Customer Payment Method</label><select id="method"><option>Cash</option><option>UPI</option><option>Pending</option></select>
+ <label>Customer Collection Status</label><select id="paid"><option>Paid</option><option>Pending</option></select>
+ <button class="gold" onclick="calculateBill()">Calculate & Submit Trip</button><p class="small" id="faremsg"></p>
+</section>
+<section class="card hidden" id="summary"><h2>Trip Submitted – Bill Breakdown</h2>
+ <div class="row"><span class="muted">Trip Distance</span><strong id="km">—</strong></div>
+ <div class="row"><span class="muted">Running Fare / Rental Fare</span><strong id="running">—</strong></div>
+ <div class="row"><span class="muted">Platform Fee (5% of Running Fare)</span><strong id="platform">—</strong></div>
+ <div class="row"><span class="muted">Driver Bata (Outstation)</span><strong id="bata">—</strong></div>
+ <div class="row"><span class="muted">Waiting / Hill / Toll / Permit / Parking</span><strong id="extras">—</strong></div>
+ <div class="sectionline"><div class="row"><strong>Customer Bill Collection</strong><span class="total" id="customerTotal">—</span></div></div>
+ <div class="notice"><div class="row"><span>Office Commission (10%)</span><strong id="commission">—</strong></div><div class="small">Calculated on Running Fare + 5% Platform Fee only. Driver must pay this separately to Office.</div></div>
+ <div class="small" id="paymentStatus"></div>
+ <button class="gold" onclick="showCommission()">Continue to Office Commission Payment</button>
+</section>
+<section class="card hidden" id="commissionBox"><h2>5. Driver Office Commission Payment</h2>
+ <div class="row"><span class="muted">Commission Payable</span><strong class="total" id="commissionDue">—</strong></div>
+ <div class="notice">Duty completion requires payment of the full office commission. Pay using the office GPay / PhonePe QR. Admin must verify the transaction before this duty link can close.</div>
+ <div class="qrbox"><div class="qrplaceholder">OFFICE QR<br>TO BE ADDED</div><strong>Covai Thendral Cabs Office</strong><div class="small">Upload the official GPay / PhonePe QR here before live use.</div></div>
+ <label>UPI Transaction ID / UTR</label><input id="utr" placeholder="Enter payment reference number">
+ <label>Payment note (optional)</label><input id="paynote" placeholder="e.g. Paid from GPay">
+ <button class="gold" onclick="submitPayment()">I Have Paid – Submit for Admin Verification</button>
+ <p class="small" id="paymsg">Demo payment only. No real money is transferred from this page.</p>
+</section>
+<section class="card hidden" id="adminBox"><h2>6. Admin Payment Verification</h2>
+ <div class="pill">WAITING FOR ADMIN VERIFICATION</div><p class="small">Demo control only. In the live system, this action is available only after secure Admin login and bank/UPI payment verification.</p>
+ <div class="row"><span class="muted">Transaction Reference</span><strong id="utrSummary">—</strong></div>
+ <button onclick="adminVerify()">Demo: Admin Verifies Payment</button><p class="small" id="adminmsg"></p>
+</section>
+<section class="card hidden" id="closed"><h2>Duty Closed</h2><span class="pill" style="background:#e2f3e7;color:#176b35">COMPLETED</span><p>Your demo duty link is now closed. Contact office for another duty.</p></section>
+<div class="foot">Coimbatore · V6 tariff demo only · Trip duration auto-recorded · Booking sync, live OTP, GPS, QR payment and admin verification require backend integration</div>
+</main>
+<script>
+const params=new URLSearchParams(location.search);
+const validTrips=['local','rental','day','outone','outround'];
+const trip=validTrips.includes(params.get('trip'))?params.get('trip'):'local';
+const vehicle=['mini','sedan','suv'].includes(params.get('vehicle'))?params.get('vehicle'):'sedan';
+const bookedHours=Math.max(1,Math.min(10,Number(params.get('hours'))||4));
+const outerKm=Math.max(0,Number(params.get('outerKm'))||0);
+let started=false,submitted=false,commissionPaid=false,commissionValue=0,calc={},tripStartAt=null,tripEndAt=null,actualElapsedHours=0;
+const el=id=>document.getElementById(id),num=id=>Math.max(0,Number(el(id).value)||0),money=x=>'₹'+Number(x).toFixed(2);
+const tripNames={local:'Local City / Local Outer',rental:'Rental – Hourly',day:'One Day Local Rental',outone:'Outstation – One Way',outround:'Outstation – Round Trip'};
+function done(n){el('s'+n).classList.add('done')}
+function changeType(){el('tripTypeDisplay').value=tripNames[trip];el('vehicleDisplay').value=vehicle.toUpperCase()+(vehicle==='suv'?' 6+1 / 7+1':'');el('typeSummary').textContent=tripNames[trip];el('vehicleSummary').textContent=vehicle.toUpperCase()+' · TN 37 AB 1234';el('hillWrap').classList.toggle('hidden',!(trip==='outone'||trip==='outround'));el('tripFields').classList.toggle('hidden',!(trip==='rental'||trip==='day'));el('outerWrap').classList.toggle('hidden',trip!=='local');el('hours').value=bookedHours;el('freeKm').value=trip==='day'?'120 KM (12 hours)':'10 KM per booked hour';el('outerKm').value=outerKm;el('bataDisplay').value=(trip==='outone'||trip==='outround')?(vehicle==='suv'?'₹500':'₹400'):'Not applicable';}
+function reached(){el('reachmsg').textContent='Pickup arrival recorded (demo).';el('otpbox').classList.remove('hidden');el('status').textContent='OTP VERIFICATION';done(1)}
+function verifyOtp(){if(el('otp').value!=='2468'){el('otpmsg').textContent='Incorrect demo OTP. Try again.';return}el('startbox').classList.remove('hidden');el('otpmsg').textContent='OTP verified. Drop location unlocked (demo).';el('status').textContent='READY TO START';done(2)}
+function startTrip(){let a=num('odoStart');if(!a){el('startmsg').textContent='Enter valid ODO Start.';return}started=true;tripStartAt=new Date();el('startmsg').textContent='Trip started at '+tripStartAt.toLocaleString()+' · ODO Start: '+a+' KM';el('endbox').classList.remove('hidden');el('status').textContent='TRIP IN PROGRESS';done(3)}
+function calculateBill(){
+ let a=num('odoStart'),b=num('odoEnd');if(!started||!b||b<a){el('faremsg').textContent='Enter ODO End greater than ODO Start.';return}
+ tripEndAt=new Date();actualElapsedHours=Math.max(0,(tripEndAt-tripStartAt)/3600000);let elapsedMinutes=Math.round(actualElapsedHours*60);el('actualDurationDisplay').value=Math.floor(elapsedMinutes/60)+' hr '+(elapsedMinutes%60)+' min';let d=b-a,t=trip,v=vehicle,run=0,bata=0,waitingMins=num('waitingMinutes'),hill=(el('hill').value==='yes'&&(t==='outone'||t==='outround'))?400:0;
+ let waiting=0,outerCharge=0,extraKm=0,billedHours=0;
+ if(t==='local'){
+   if(v==='suv'){el('faremsg').textContent='Local tariff is available for Mini and Sedan only.';return}
+   run=200+Math.max(0,d-5)*(v==='mini'?28:30);
+   waiting=Math.max(0,waitingMins-20)*2;
+   outerCharge=outerKm<=0?0:(outerKm<=2.5?50:100);
+ }
+ if(t==='rental'){
+   if(v==='suv'){el('faremsg').textContent='Hourly Rental is available for Mini and Sedan only.';return}
+   let h=bookedHours, actual=Math.max(h,actualElapsedHours);
+   let overtimeHours=Math.floor(actual-h), remainder=Math.round((actual-h-overtimeHours)*60);
+   billedHours=h+overtimeHours+(remainder>=45?1:0);
+   let base=0;for(let i=1;i<=Math.min(billedHours,10);i++)base+=(i<=5?325:300);
+   let overtimeWait=remainder>0&&remainder<45?remainder*2:0;
+   let free=h*10;extraKm=Math.max(0,d-free);run=base+extraKm*18+overtimeWait;
+ }
+ if(t==='day'){
+   if(v==='suv'){el('faremsg').textContent='One Day Local Rental is available for Mini and Sedan only.';return}
+   run=3500+Math.max(0,d-120)*18;
+ }
+ if(t==='outone'||t==='outround'){
+   let rate=v==='suv'?(t==='outone'?20:19):(t==='outone'?15:14);
+   run=Math.max(d,130)*rate;bata=v==='suv'?500:400;waiting=Math.max(0,waitingMins-60)*2;
+ }
+ let pf=run*.05,toll=num('toll'),permit=num('permit'),parking=num('parking'),extra=waiting+hill+toll+permit+parking+outerCharge,total=run+pf+bata+extra;
+ let commission=(run+pf)*.10;
+ calc={d,run,pf,bata,extra,total,commission,waiting,outerCharge,hill,toll,permit,parking,extraKm,billedHours};commissionValue=commission;
+ el('km').textContent=d+' KM';el('running').textContent=money(run);el('platform').textContent=money(pf);el('bata').textContent=money(bata);el('extras').textContent=money(extra);el('customerTotal').textContent=money(total);el('commission').textContent=money(commission);el('commissionDue').textContent=money(commission);el('paymentStatus').textContent='Customer payment: '+el('method').value+' · '+el('paid').value;
+ let detail='Actual elapsed trip duration: '+Math.floor(elapsedMinutes/60)+' hr '+(elapsedMinutes%60)+' min (automatically recorded). Platform Fee 5% on running fare only. Office Commission 10% on running fare + platform fee only. Driver Bata, waiting, hill, toll, permit, parking and outer charge are excluded from commission.';
+ if(t==='local')detail+=' Local: first 5 KM ₹200; extra KM '+(v==='mini'?'₹28':'₹30')+'. First 20 minutes personal-stop waiting free, then ₹2/min. Outer charge once: ₹50 up to 2.5 KM outside 25 KM boundary, otherwise ₹100.';
+ if(t==='rental')detail+=' Hourly: 1–5 hours ₹325/hour; 6–10 hours ₹300/hour; 10 free KM per booked hour; extra KM ₹18. Overtime under 45 minutes ₹2/min; 45 minutes or more rounds to next hourly slab.';
+ if(t==='day')detail+=' One Day Rental: ₹3,500 for 12 hours / 120 KM; extra KM ₹18.';
+ if(t==='outone'||t==='outround')detail+=' Outstation '+(t==='outone'?'One Way':'Round Trip')+': '+(v==='suv'?'SUV ₹'+(t==='outone'?20:19):'Sedan ₹'+(t==='outone'?15:14))+'/KM; minimum billable 130 KM; Driver Bata ₹'+bata+'. First 60 minutes waiting free, then ₹2/min.';
+ el('faremsg').textContent=detail;
+ el('summary').classList.remove('hidden');el('status').textContent='BILL SUBMITTED';submitted=true;done(4);el('summary').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function showCommission(){if(!submitted)return;el('commissionBox').classList.remove('hidden');el('status').textContent='COMMISSION PAYMENT REQUIRED';done(5);el('commissionBox').scrollIntoView({behavior:'smooth',block:'start'})}
+function submitPayment(){let ref=el('utr').value.trim();if(!ref){el('paymsg').textContent='Enter UPI Transaction ID / UTR to submit.';return}el('utrSummary').textContent=ref;el('paymsg').textContent='Payment details submitted. Waiting for Admin verification (demo).';el('adminBox').classList.remove('hidden');el('status').textContent='WAITING FOR ADMIN PAYMENT VERIFICATION';el('adminBox').scrollIntoView({behavior:'smooth',block:'start'})}
+function adminVerify(){commissionPaid=true;el('adminmsg').textContent='Admin verified commission payment (demo). Duty can now be closed.';el('status').textContent='PAYMENT VERIFIED';done(6);let b=document.createElement('button');b.className='gold';b.textContent='Close Duty Link';b.onclick=closeDuty;el('adminBox').appendChild(b)}
+function closeDuty(){if(!commissionPaid){alert('Office commission payment and Admin verification are compulsory.');return}el('closed').classList.remove('hidden');el('status').textContent='DUTY CLOSED';el('closed').scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('button,input,select').forEach(x=>x.disabled=true)}
+changeType();
+</script>
+</body></html>
